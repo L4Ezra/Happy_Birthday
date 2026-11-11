@@ -59,6 +59,11 @@
       border-radius: 16px;
       margin-bottom: 18px;
       box-shadow: 0 6px 15px rgba(0,0,0,0.06);
+      cursor: pointer;
+      transition: transform 0.2s ease;
+    }
+    .gate-thumb:active {
+      transform: scale(0.97);
     }
     .warning-title {
       font-family: 'Plus Jakarta Sans', sans-serif;
@@ -503,7 +508,7 @@
     <!-- GATE SCREEN -->
     <div id="gateScreen">
       <div class="warning-card">
-        <img src="Thumbnail.jpeg" id="gateThumbImg" alt="Thumbnail Cover" class="gate-thumb">
+        <img src="Thumbnail.png" id="gateThumbImg" alt="Thumbnail Cover" class="gate-thumb" onclick="openModal('Thumbnail.png', 'Thumbnail Cover 🎀', 'Special cover foto spesial untuk Citra.')">
         
         <div class="warning-title">Khusus Untuk Citra 🎀</div>
         <p class="warning-text">Halaman ini dibuat khusus untuk kamu. Masukkan tanggal penting untuk membuka halamannya ya.</p>
@@ -559,7 +564,7 @@
         <!-- 2. How pretty! -->
         <div class="timeline-item">
           <div class="timeline-date">How pretty!</div>
-          <div class="blur-photo-card" onclick="revealPhoto(this, 'Cantik.jpeg', 'Cantik amat', 'Senyumnya bikin nular kak, aduhhh..')">
+          <div class="blur-photo-card" onclick="revealPhoto(this, 'Cantik.jpeg', 'Cantik amat', 'Walaupun pose melet gini tetep gemes dan cantik banget haha! 😜✨')">
             <div class="photo-wrapper">
               <img src="Cantik.jpeg" alt="Cantik">
               <div class="blur-overlay">
@@ -568,7 +573,7 @@
             </div>
             <div class="photo-caption">
               <strong>How pretty!</strong><br>
-              Foto yang satu ini punya ekspresi manis tersendiri. Selalu menyenangkan melihat energi positif dari senyum kamu.
+              Foto yang satu ini punya ekspresi melet yang lucu dan ngangenin banget. Walaupun posenya usil, tetep aja kelihatan cantik dan menggemaskan! 😜✨
             </div>
           </div>
         </div>
@@ -737,13 +742,13 @@
       img.onerror = function() {
         const fallbacks = [
           rawSrc,
+          rawSrc.replace('.png', '.jpeg'),
+          rawSrc.replace('.png', '.jpg'),
           rawSrc.replace('.jpeg', '.jpg'),
           rawSrc.replace('.jpeg', '.png'),
-          rawSrc.replace('Thumbnail', 'thumbnail'),
-          'Thumbnail.jpg',
+          'Thumbnail.png',
           'Thumbnail.jpeg',
-          'thumbnail.jpeg',
-          'thumbnail.jpg'
+          'Thumbnail.jpg'
         ];
         
         let currentIndex = parseInt(this.dataset.fallbackIndex || '0');
