@@ -1,0 +1,826 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>Happy Birthday Citra 🎀</title>
+  <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+  
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      -webkit-tap-highlight-color: transparent;
+    }
+    body {
+      background: linear-gradient(180deg, #faf5ef 0%, #f7ede2 100%);
+      color: #4a3e3d;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      padding: 20px 15px;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    .container {
+      width: 100%;
+      max-width: 440px;
+      display: flex;
+      flex-direction: column;
+      gap: 22px;
+    }
+
+    /* GATE SCREEN */
+    #gateScreen {
+      min-height: 85vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      text-align: center;
+      animation: fadeIn 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .warning-card {
+      background: rgba(255, 255, 255, 0.88);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(226, 180, 189, 0.4);
+      border-radius: 24px;
+      padding: 30px 22px;
+      box-shadow: 0 15px 35px rgba(184, 107, 119, 0.08);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    .gate-thumb {
+      width: 100%;
+      max-height: 220px;
+      object-fit: cover;
+      border-radius: 16px;
+      margin-bottom: 18px;
+      box-shadow: 0 6px 15px rgba(0,0,0,0.06);
+    }
+    .warning-title {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      color: #b86b77;
+      font-size: 1.05rem;
+      margin-bottom: 10px;
+      font-weight: 700;
+      letter-spacing: 0.3px;
+    }
+    .warning-text {
+      font-size: 0.88rem;
+      color: #7d6b6d;
+      line-height: 1.6;
+    }
+
+    .hint-notice {
+      display: none;
+      background: #fdf3f2;
+      border: 1px dashed #e2b4bd;
+      border-radius: 14px;
+      padding: 12px;
+      margin-top: 15px;
+      font-size: 0.8rem;
+      color: #b86b77;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      animation: fadeIn 0.4s ease-in-out;
+      width: 100%;
+    }
+
+    .pass-input {
+      width: 100%;
+      padding: 14px;
+      background: rgba(250, 246, 240, 0.8);
+      border: 1.5px solid #e2b4bd;
+      border-radius: 14px;
+      color: #4a3e3d;
+      font-family: 'Fira Code', monospace;
+      font-size: 1rem;
+      text-align: center;
+      margin-top: 18px;
+      outline: none;
+      transition: all 0.3s ease;
+    }
+    .pass-input:focus {
+      border-color: #b86b77;
+      box-shadow: 0 0 12px rgba(184, 107, 119, 0.2);
+    }
+    .btn-gate {
+      width: 100%;
+      padding: 14px;
+      border-radius: 14px;
+      border: none;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-weight: 700;
+      font-size: 0.9rem;
+      cursor: pointer;
+      margin-top: 14px;
+      background: linear-gradient(135deg, #b86b77 0%, #a25662 100%);
+      color: #ffffff;
+      box-shadow: 0 6px 18px rgba(184, 107, 119, 0.3);
+      transition: transform 0.2s ease;
+    }
+    .btn-gate:active { transform: scale(0.97); }
+    
+    .btn-hint-toggle {
+      background: transparent;
+      color: #8c7a7c;
+      border: none;
+      font-size: 0.78rem;
+      text-decoration: underline;
+      margin-top: 12px;
+      cursor: pointer;
+    }
+
+    .error-msg {
+      color: #c94a59;
+      font-size: 0.78rem;
+      margin-top: 10px;
+      display: none;
+    }
+
+    /* MAIN CONTENT */
+    #mainContent {
+      display: none;
+      flex-direction: column;
+      gap: 22px;
+      width: 100%;
+      padding-bottom: 40px;
+      animation: fadeIn 0.8s ease-in-out;
+    }
+
+    .note-card {
+      background: rgba(255, 255, 255, 0.85);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid rgba(255, 255, 255, 0.9);
+      border-radius: 20px;
+      padding: 18px 20px;
+      box-shadow: 0 10px 30px rgba(184, 107, 119, 0.08);
+      font-size: 0.85rem;
+      line-height: 1.6;
+      color: #6c5b7b;
+    }
+    .note-card-title {
+      font-weight: 700;
+      color: #b86b77;
+      margin-bottom: 4px;
+      font-size: 0.82rem;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+    }
+
+    /* TITLE SECTION */
+    .header-section {
+      text-align: center;
+      margin: 5px 0 10px 0;
+    }
+    .hero-title {
+      font-size: 1.55rem;
+      font-weight: 800;
+      background: linear-gradient(135deg, #4a3e3d 0%, #b86b77 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      letter-spacing: -0.5px;
+    }
+    .hero-subtitle-name {
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: #b86b77;
+      margin-top: 2px;
+    }
+    .subtitle {
+      font-size: 0.82rem;
+      color: #8c7a7c;
+      margin-top: 6px;
+    }
+
+    /* TIMELINE CONTAINER */
+    .timeline {
+      position: relative;
+      margin: 5px 0;
+      padding-left: 18px;
+      border-left: 2px dashed rgba(216, 196, 188, 0.8);
+      display: flex;
+      flex-direction: column;
+      gap: 28px;
+    }
+
+    .timeline-item {
+      position: relative;
+    }
+
+    .timeline-item::before {
+      content: '🎀';
+      position: absolute;
+      left: -29px;
+      top: 0px;
+      font-size: 0.75rem;
+      background: #faf5ef;
+      padding: 2px 0;
+    }
+
+    .timeline-date {
+      font-size: 0.76rem;
+      color: #b86b77;
+      font-weight: 700;
+      margin-bottom: 8px;
+      letter-spacing: 0.3px;
+    }
+
+    /* BLURRED CARD FOTO TUNGGAL */
+    .blur-photo-card {
+      background: rgba(255, 255, 255, 0.92);
+      border: 1px solid #efe4dc;
+      border-radius: 18px;
+      padding: 12px;
+      box-shadow: 0 6px 20px rgba(0,0,0,0.02);
+      cursor: pointer;
+      overflow: hidden;
+      transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .blur-photo-card:active {
+      transform: scale(0.98);
+    }
+
+    .photo-wrapper {
+      position: relative;
+      width: 100%;
+      height: 220px;
+      border-radius: 12px;
+      overflow: hidden;
+      background: #f4eae1;
+    }
+
+    .photo-wrapper img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      filter: blur(18px) grayscale(30%);
+      transform: scale(1.1);
+      transition: filter 0.6s ease, transform 0.6s ease;
+    }
+
+    .blur-overlay {
+      position: absolute;
+      top: 0; left: 0; right: 0; bottom: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      background: rgba(74, 62, 61, 0.2);
+      color: #ffffff;
+      backdrop-filter: blur(3px);
+      transition: opacity 0.4s ease;
+    }
+    .blur-overlay span {
+      background: rgba(184, 107, 119, 0.92);
+      color: #fff;
+      padding: 7px 16px;
+      border-radius: 20px;
+      font-size: 0.76rem;
+      font-weight: 600;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.12);
+      letter-spacing: 0.3px;
+    }
+
+    .blur-photo-card.unlocked .photo-wrapper img {
+      filter: blur(0px) grayscale(0%);
+      transform: scale(1);
+    }
+    .blur-photo-card.unlocked .blur-overlay {
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .photo-caption {
+      margin-top: 12px;
+      font-size: 0.85rem;
+      line-height: 1.65;
+      color: #4a3e3d;
+      display: none;
+      animation: fadeIn 0.5s ease-in-out;
+    }
+
+    /* MINI-GRID COLLAGE */
+    .mini-grid-container {
+      background: rgba(255, 255, 255, 0.92);
+      border: 1px solid #efe4dc;
+      border-radius: 18px;
+      padding: 14px;
+      box-shadow: 0 6px 20px rgba(0,0,0,0.02);
+    }
+    .mini-grid-3 {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+    }
+    .mini-grid-2 {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 10px;
+    }
+    .mini-grid-item {
+      position: relative;
+      height: 110px;
+      border-radius: 10px;
+      overflow: hidden;
+      cursor: pointer;
+      background: #f4eae1;
+    }
+    .mini-grid-item img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      filter: blur(14px);
+      transition: filter 0.4s, transform 0.3s;
+    }
+    .mini-grid-item.unlocked img {
+      filter: blur(0px);
+    }
+    .mini-grid-item:active img {
+      transform: scale(0.95);
+    }
+
+    /* ACTION BUTTONS */
+    .action-section {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      margin-top: 10px;
+    }
+    .btn {
+      width: 100%;
+      padding: 15px;
+      border: none;
+      border-radius: 14px;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 0.88rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+    .btn-primary { 
+      background: linear-gradient(135deg, #b86b77 0%, #a25662 100%); 
+      color: #ffffff; 
+      box-shadow: 0 6px 18px rgba(184, 107, 119, 0.3); 
+    }
+    .btn-primary:active { transform: scale(0.98); }
+    .btn-troll {
+      background: #ffffff;
+      color: #b86b77;
+      border: 1.5px dashed #e2b4bd;
+    }
+
+    /* WISH BOX */
+    .wish-box {
+      display: none;
+      background: rgba(255, 255, 255, 0.95);
+      border: 1.5px solid #e2b4bd;
+      border-radius: 16px;
+      padding: 20px;
+      font-size: 0.86rem;
+      line-height: 1.75;
+      color: #4a3e3d;
+      box-shadow: 0 8px 25px rgba(184, 107, 119, 0.08);
+      animation: fadeIn 0.4s forwards;
+    }
+
+    /* KLIMAKS SURAT RAHASIA */
+    .btn-climax {
+      display: none;
+      background: linear-gradient(135deg, #4a3e3d 0%, #362c2b 100%);
+      color: #faf5ef;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      margin-top: 5px;
+      box-shadow: 0 6px 20px rgba(74, 62, 61, 0.25);
+      animation: fadeIn 0.6s ease-in-out;
+    }
+
+    .climax-modal {
+      display: none;
+      position: fixed;
+      z-index: 200;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background: rgba(250, 245, 239, 0.96);
+      backdrop-filter: blur(8px);
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 22px;
+      text-align: center;
+      animation: fadeIn 0.5s ease;
+    }
+    .climax-card {
+      background: #ffffff;
+      border: 1.5px solid #e2b4bd;
+      border-radius: 24px;
+      padding: 30px 22px;
+      box-shadow: 0 20px 45px rgba(184, 107, 119, 0.15);
+      max-width: 400px;
+      width: 100%;
+    }
+    .climax-title {
+      font-size: 1.2rem;
+      color: #b86b77;
+      font-weight: 800;
+      margin-bottom: 14px;
+    }
+    .climax-body {
+      font-size: 0.88rem;
+      line-height: 1.85;
+      color: #4a3e3d;
+      text-align: left;
+    }
+
+    /* POP-UP MODAL FOTO ZOOM */
+    .modal {
+      display: none;
+      position: fixed;
+      z-index: 150;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background: rgba(74, 62, 61, 0.7);
+      backdrop-filter: blur(6px);
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+    .modal-content {
+      background: #ffffff;
+      border: 1px solid #efe4dc;
+      border-radius: 20px;
+      max-width: 400px;
+      width: 100%;
+      padding: 18px;
+      text-align: left;
+      box-shadow: 0 15px 35px rgba(0,0,0,0.18);
+      animation: popUp 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .modal-content img {
+      width: 100%;
+      max-height: 280px;
+      object-fit: contain;
+      background: #faf5ef;
+      border-radius: 12px;
+    }
+    .modal-date {
+      font-size: 0.76rem;
+      color: #b86b77;
+      margin-top: 12px;
+      font-weight: 700;
+    }
+    .modal-caption {
+      margin-top: 6px;
+      font-size: 0.86rem;
+      color: #4a3e3d;
+      line-height: 1.6;
+    }
+    .close-btn {
+      width: 100%;
+      margin-top: 16px;
+      background: #f4eae1;
+      color: #4a3e3d;
+      border: none;
+      padding: 11px;
+      border-radius: 10px;
+      font-size: 0.82rem;
+      font-weight: 700;
+      cursor: pointer;
+      text-align: center;
+    }
+
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+    @keyframes popUp { from { opacity: 0; transform: scale(0.9); } to { opacity: 1; transform: scale(1); } }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    
+    <!-- GATE SCREEN (FOTO THUMBNAIL DIATAS FORM) -->
+    <div id="gateScreen">
+      <div class="warning-card">
+        <img src="Thumbnail.jpg" alt="Thumbnail Cover" class="gate-thumb">
+        
+        <div class="warning-title">Khusus Untuk Citra 🎀</div>
+        <p class="warning-text">Halaman ini dibuat khusus untuk kamu. Masukkan tanggal penting untuk membuka halamannya ya.</p>
+        
+        <input type="password" id="passInput" class="pass-input" placeholder="Masukkan Passcode..." />
+        
+        <button class="btn-gate" onclick="checkPassword()">Buka Halaman ✨</button>
+        <button class="btn-hint-toggle" onclick="toggleHint()">Lupa Passcode?</button>
+        
+        <div class="hint-notice" id="hintNotice">
+          💡 <strong>Petunjuk:</strong> Tanggal lahir developer (DDMMYYYY)
+        </div>
+
+        <p class="error-msg" id="errorMsg">Passcode salah, coba ingat-ingat lagi tanggal lahirnya ya.</p>
+      </div>
+    </div>
+
+    <!-- MAIN CONTENT -->
+    <div id="mainContent">
+      
+      <!-- Kartu Catatan Singkat -->
+      <div class="note-card">
+        <div class="note-card-title">Catatan Kecil</div>
+        Bukan tipe orang yang pandai merangkai kata-kata manis, tapi halaman ini khusus dibuat di hari ulang tahunmu. Sentuh foto di bawah ya.
+      </div>
+
+      <div class="header-section">
+        <h1 class="hero-title">Happy Birthday! 🎉</h1>
+        <div class="hero-subtitle-name">Maria Citra Cantika Sari</div>
+        <p class="subtitle">Beberapa kenangan yang sempat tersimpan ✨</p>
+      </div>
+
+      <!-- VERTICAL TIMELINE -->
+      <div class="timeline" id="timelineContainer">
+        
+        <!-- 1. FIRST FOTO -->
+        <div class="timeline-item">
+          <div class="timeline-date">Awal Cerita</div>
+          <div class="blur-photo-card" onclick="revealPhoto(this, 'First foto.jpg', 'First Foto nihh', 'Pertama kali banget foto bareng walaupun seadanya.')">
+            <div class="photo-wrapper">
+              <img src="First foto.jpg" alt="First foto">
+              <div class="blur-overlay">
+                <span>Sentuh untuk membuka 🌸</span>
+              </div>
+            </div>
+            <div class="photo-caption">
+              <strong>Foto pertama </strong><br>
+              Seingatnya waktu pertama ketemu itu malem senin abis pulang gereja tuh ke toko kamu, ngobrol- ngobrol singkat aja terus balik. Suasana yang awalnya lumayan kaku dan canggung perlahan jadi santai karena kamu orangnya ramah dan enak diajak ngobrol. Nah,foto ini waktu setelah sekian kali ketemu, tepatnya sih waktu nemenin kamu closing sendirian.
+            </div>
+          </div>
+        </div>
+
+        <!-- 2. How pretty! -->
+        <div class="timeline-item">
+          <div class="timeline-date">How pretty!</div>
+          <div class="blur-photo-card" onclick="revealPhoto(this, 'Cantik.jpg', 'Cantikk amat', 'Senyumnya bikin nular kak,aduhhh..')">
+            <div class="photo-wrapper">
+              <img src="Cantik.jpg" alt="Cantik">
+              <div class="blur-overlay">
+                <span>Sentuh untuk membuka ✨</span>
+              </div>
+            </div>
+            <div class="photo-caption">
+              <strong>How pretty!</strong><br>
+              Foto yang satu ini punya ekspresi manis tersendiri. Selalu menyenangkan melihat energi positif dari senyum kamu.
+            </div>
+          </div>
+        </div>
+
+        <!-- 3. MOMEN KECIL (6 FOTO GRID) -->
+        <div class="timeline-item">
+          <div class="timeline-date">Momen Kecil</div>
+          <div class="mini-grid-container">
+            <p style="font-size: 0.78rem; color: #8c7a7c; margin-bottom: 10px; font-weight: 500;">Klik foto kecil untuk memperbesar 🔍</p>
+            <div class="mini-grid-3">
+              
+              <div class="mini-grid-item" onclick="openMiniGridModal(this, 'Momen Kecil 1.jpg', 'Lupa namanya apa ni', 'Tapi,ini enak banget ini lohh.')">
+                <img src="Momen Kecil 1.jpg" alt="Momen Kecil 1">
+              </div>
+
+              <div class="mini-grid-item" onclick="openMiniGridModal(this, 'Momen Kecil 2.jpg', 'Paparazi dulu', 'Nemenin kamu belanja buat masak.')">
+                <img src="Momen Kecil 2.jpg" alt="Momen Kecil 2">
+              </div>
+
+              <div class="mini-grid-item" onclick="openMiniGridModal(this, 'Momen Kecil 3.jpg', 'Miror 1', 'Foto di cermin yang jadi bahan pembicaraan sih aharusnya.')">
+                <img src="Momen Kecil 3.jpg" alt="Momen Kecil 3">
+              </div>
+
+              <div class="mini-grid-item" onclick="openMiniGridModal(this, 'Momen Kecil 4.jpg', 'Kira-kira apa ya?', 'Konteksnya biar terkesan ga mau ditinggalin ahhaha.')">
+                <img src="Momen Kecil 4.jpg" alt="Momen Kecil 4">
+              </div>
+
+              <div class="mini-grid-item" onclick="openMiniGridModal(this, 'Momen Kecil 5.jpg', 'Ngeng ', 'Momen Dibonceng PEMBALAP nihh bosss...')">
+                <img src="Momen Kecil 5.jpg" alt="Momen Kecil 5">
+              </div>
+
+              <div class="mini-grid-item" onclick="openMiniGridModal(this, 'Momen Kecil 6.jpg', 'Pamer ceritanya ini', 'Mirror digereja yang bikin wadidaw juga nih ')">
+                <img src="Momen Kecil 6.jpg" alt="Momen Kecil 6">
+              </div>
+
+            </div>
+          </div>
+        </div>
+
+        <!-- 4. FOTO RANDOM (2 FOTO SEKALIGUS MUNCUL) -->
+        <div class="timeline-item">
+          <div class="timeline-date">Foto Random</div>
+          <div class="mini-grid-container">
+            <p style="font-size: 0.78rem; color: #8c7a7c; margin-bottom: 10px; font-weight: 500;">Klik untuk membuka 2 foto random 💬</p>
+            <div class="mini-grid-2">
+              
+              <div class="mini-grid-item" onclick="openMiniGridModal(this, 'Random Foto 1.jpg', 'Random Foto 1', 'Sesuai dengan namanya sih , Masker wajah.')">
+                <img src="Random Foto 1.jpg" alt="Random Foto 1">
+              </div>
+
+              <div class="mini-grid-item" onclick="openMiniGridModal(this, 'Random Foto 2.jpg', 'Random Foto 2', 'After ditempelin jepitan mungill.')">
+                <img src="Random Foto 2.jpg" alt="Random Foto 2">
+              </div>
+
+            </div>
+          </div>
+        </div>
+
+        <!-- 5. BEST MOMENTS (BEST 1, BEST 2, BEST 3) -->
+        <div class="timeline-item">
+          <div class="timeline-date">Momen Terbaik</div>
+          
+          <!-- Best 1 (Khusus Kesan "Aku") -->
+          <div class="blur-photo-card" style="margin-bottom: 12px;" onclick="revealPhoto(this, 'Best 1.jpg', 'Darderdor', 'Pertama kali ajak kamu ke GSRI dan Keluarga.')">
+            <div class="photo-wrapper">
+              <img src="Best 1.jpg" alt="Best 1">
+              <div class="blur-overlay">
+                <span>Sentuh untuk membuka ✨</span>
+              </div>
+            </div>
+            <div class="photo-caption">
+              <strong>Momen Terdarderdor</strong><br>
+              Di antara sekian banyak foto, yang ini salah satu yang paling aku suka. Momen dimana ke  GSRI bawa Cewe terus langsung makan bareng keluarga.. darderdor banget sih ya . Mana cantik banget huhuhu
+            </div>
+          </div>
+
+          <!-- Best 2 -->
+          <div class="blur-photo-card" style="margin-bottom: 12px;" onclick="revealPhoto(this, 'Best 2.jpg', 'Butterfly moments ', 'After Movie dan .')">
+            <div class="photo-wrapper">
+              <img src="Best 2.jpg" alt="Best 2">
+              <div class="blur-overlay">
+                <span>Sentuh untuk membuka ✨</span>
+              </div>
+            </div>
+            <div class="photo-caption">
+              <strong>After Movie</strong><br>
+              Fotonya sih canggung yaa, tapi... Mental diuji banget sih pas pulang.
+            </div>
+          </div>
+
+          <!-- Best 3 -->
+          <div class="blur-photo-card" onclick="revealPhoto(this, 'Best 3.jpg', 'Momen Paling Berkesan', 'After Baptis.')">
+            <div class="photo-wrapper">
+              <img src="Best 3.jpg" alt="Best 3">
+              <div class="blur-overlay">
+                <span>Sentuh untuk membuka ✨</span>
+              </div>
+            </div>
+            <div class="photo-caption">
+              <strong>Pig Hunter</strong><br>
+              Dihari itu ngerasa berkesan banget karna abis neminin kamu Baptis dan langsung ketempat yang sama waktu aku sama keluarga makan.
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+
+      <!-- Action Buttons -->
+      <div class="action-section">
+        <button class="btn btn-primary" onclick="showWishes()">✨ Doa & Harapan</button>
+        <button class="btn btn-troll" id="trollBtn" ontouchstart="moveButton()" onclick="moveButton()">Jangan Dipencet! 🙈</button>
+        
+        <button class="btn btn-climax" id="climaxBtn" onclick="triggerFinalClimax()">💌 Pesan Khusus Untuk Citra</button>
+      </div>
+
+      <!-- Wish Box Result -->
+      <div class="wish-box" id="wishBox">
+        <p><strong>Doa untuk Citra ✨:</strong></p>
+        <p>Selamat ulang tahun, Maria Citra Cantika Sari. Kiranya Tuhan Yesus selalu menyertai setiap langkah hidupmu, memberkati kesehatanmu, memberikan ketenangan di hatimu, serta melancarkan segala urusan dan cita-citamu. Semoga kamu selalu dikelilingi oleh kasih dan hal-hal baik.</p>
+      </div>
+
+    </div>
+
+  </div>
+
+  <!-- Modal Zoom Pop-up -->
+  <div class="modal" id="photoModal">
+    <div class="modal-content">
+      <img id="modalImg" src="" alt="Detail Content">
+      <div class="modal-date" id="modalDate"></div>
+      <div class="modal-caption" id="modalText"></div>
+      <button class="close-btn" onclick="closeModal()">Tutup [X]</button>
+    </div>
+  </div>
+
+  <!-- LAYAR FULLSCREEN SURAT -->
+  <div class="climax-modal" id="climaxModal">
+    <div class="climax-card">
+      <div class="climax-title">💌 Catatan Singkat</div>
+      <div class="climax-body">
+        <p>Hai Citra,</p><br>
+        <p>Sadar diri kalau bukan tipe cowok yang pintar bicara manis atau merangkai kata-kata romantis. Lewat buatan tangan yang sederhana ini, cuma ingin menyampaikan rasa terima kasih.</p><br>
+        <p>Terima kasih sudah jadi teman ngobrol yang menyenangkan dan selalu membawa suasana positif setiap kali bertemu. Kehadiranmu bener-bener berarti.</p><br>
+        <p>Sekalian dari hati yang paling dalam, aku juga mau minta maaf kalau sampai saat ini aku belum bisa memberikan yang terbaik untuk kamu. Kiranya Tuhan Yesus selalu menjaga dan memberkati perjalanan usiamu yang baru ini ya.</p><br>
+        <p>Selamat ulang tahun, Citra.</p>
+      </div>
+      <button class="close-btn" style="margin-top:22px; background:#b86b77; color:#fff;" onclick="closeClimax()">Tutup Pesan 💌</button>
+    </div>
+  </div>
+
+  <script>
+    function toggleHint() {
+      const hint = document.getElementById('hintNotice');
+      hint.style.display = (hint.style.display === 'block') ? 'none' : 'block';
+    }
+
+    function checkPassword() {
+      const input = document.getElementById('passInput').value.trim().replaceAll('-', '').replaceAll('/', '');
+      const errorMsg = document.getElementById('errorMsg');
+      
+      if (input === "11122001" || input.toLowerCase() === 'hbd' || input.toLowerCase() === 'citra') {
+        unlockWeb();
+      } else {
+        errorMsg.style.display = 'block';
+      }
+    }
+
+    function unlockWeb() {
+      confetti({
+        particleCount: 100,
+        spread: 70,
+        origin: { y: 0.5 },
+        colors: ['#b86b77', '#e2b4bd', '#efe4dc', '#ffffff']
+      });
+      
+      document.getElementById('gateScreen').style.display = 'none';
+      document.getElementById('mainContent').style.display = 'flex';
+    }
+
+    function revealPhoto(cardElement, imgSrc, dateText, captionText) {
+      if (!cardElement.classList.contains('unlocked')) {
+        cardElement.classList.add('unlocked');
+        
+        const caption = cardElement.querySelector('.photo-caption');
+        if (caption) {
+          caption.style.display = 'block';
+        }
+
+        confetti({
+          particleCount: 40,
+          spread: 50,
+          origin: { y: 0.6 },
+          colors: ['#b86b77', '#e2b4bd', '#ffffff']
+        });
+      } else {
+        openModal(imgSrc, dateText, captionText);
+      }
+    }
+
+    function openMiniGridModal(element, imgSrc, dateText, captionText) {
+      element.classList.add('unlocked');
+      openModal(imgSrc, dateText, captionText);
+      confetti({
+        particleCount: 35,
+        spread: 45,
+        origin: { y: 0.6 },
+        colors: ['#b86b77', '#e2b4bd', '#ffffff']
+      });
+    }
+
+    function openModal(imgSrc, dateText, captionText) {
+      document.getElementById('modalImg').src = imgSrc;
+      document.getElementById('modalDate').innerText = dateText;
+      document.getElementById('modalText').innerText = captionText;
+      document.getElementById('photoModal').style.display = 'flex';
+    }
+
+    function closeModal() {
+      document.getElementById('photoModal').style.display = 'none';
+    }
+
+    function showWishes() {
+      document.getElementById('wishBox').style.display = 'block';
+      document.getElementById('climaxBtn').style.display = 'block';
+      confetti({
+        particleCount: 120,
+        spread: 80,
+        origin: { y: 0.7 }
+      });
+    }
+
+    function triggerFinalClimax() {
+      confetti({
+        particleCount: 180,
+        spread: 100,
+        origin: { y: 0.5 },
+        colors: ['#b86b77', '#e2b4bd', '#efe4dc', '#ffffff']
+      });
+      document.getElementById('climaxModal').style.display = 'flex';
+    }
+
+    function closeClimax() {
+      document.getElementById('climaxModal').style.display = 'none';
+    }
+
+    function moveButton() {
+      const btn = document.getElementById('trollBtn');
+      const x = Math.floor(Math.random() * 140) - 70;
+      const y = Math.floor(Math.random() * 80) - 40;
+      btn.style.transform = `translate(${x}px, ${y}px)`;
+    }
+  </script>
+</body>
+</html>
