@@ -503,7 +503,7 @@
     <!-- GATE SCREEN -->
     <div id="gateScreen">
       <div class="warning-card">
-        <img src="Thumbnail.jpeg" alt="Thumbnail Cover" class="gate-thumb">
+        <img src="Thumbnail.jpg" alt="Thumbnail Cover" class="gate-thumb">
         
         <div class="warning-title">Khusus Untuk Citra 🎀</div>
         <p class="warning-text">Halaman ini dibuat khusus untuk kamu. Masukkan tanggal penting untuk membuka halamannya ya.</p>
@@ -573,7 +573,7 @@
           </div>
         </div>
 
-        <!-- 3. MOMEN KECIL (6 FOTO GRID) -->
+        <!-- 3. MOMEN KECIL -->
         <div class="timeline-item">
           <div class="timeline-date">Momen Kecil</div>
           <div class="mini-grid-container">
@@ -721,15 +721,30 @@
   </div>
 
   <script>
-    // Enkodifikasi otomatis path gambar agar spasi pada nama file seperti "Best 1.jpeg" di-handle dengan baik oleh server GitHub Pages
+    // Penanganan otomatis encoding spasi & fallback ekstensi (.jpeg / .jpg / .PNG)
     window.addEventListener('DOMContentLoaded', () => {
       document.querySelectorAll('img').forEach(img => {
-        const rawSrc = img.getAttribute('src');
-        if (rawSrc && !rawSrc.startsWith('http')) {
-          img.src = encodeURI(rawSrc);
-        }
+        setupImageFallback(img);
       });
     });
+
+    function setupImageFallback(img) {
+      const rawSrc = img.getAttribute('src');
+      if (!rawSrc || rawSrc.startsWith('http')) return;
+      
+      img.src = encodeURI(rawSrc);
+
+      img.onerror = function() {
+        if (!this.dataset.fallbackTried) {
+          this.dataset.fallbackTried = "1";
+          if (rawSrc.endsWith('.jpeg')) {
+            this.src = encodeURI(rawSrc.replace('.jpeg', '.jpg'));
+          } else if (rawSrc.endsWith('.jpg')) {
+            this.src = encodeURI(rawSrc.replace('.jpg', '.jpeg'));
+          }
+        }
+      };
+    }
 
     function toggleHint() {
       const hint = document.getElementById('hintNotice');
@@ -791,7 +806,20 @@
     }
 
     function openModal(imgSrc, dateText, captionText) {
-      document.getElementById('modalImg').src = encodeURI(imgSrc);
+      const modalImg = document.getElementById('modalImg');
+      modalImg.dataset.fallbackTried = "";
+      modalImg.src = encodeURI(imgSrc);
+      modalImg.onerror = function() {
+        if (!this.dataset.fallbackTried) {
+          this.dataset.fallbackTried = "1";
+          if (imgSrc.endsWith('.jpeg')) {
+            this.src = encodeURI(imgSrc.replace('.jpeg', '.jpg'));
+          } else if (imgSrc.endsWith('.jpg')) {
+            this.src = encodeURI(imgSrc.replace('.jpg', '.jpeg'));
+          }
+        }
+      };
+
       document.getElementById('modalDate').innerText = dateText;
       document.getElementById('modalText').innerText = captionText;
       document.getElementById('photoModal').style.display = 'flex';
