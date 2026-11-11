@@ -757,6 +757,9 @@
     const music = document.getElementById('bgMusic');
     const musicBtn = document.getElementById('musicToggleBtn');
 
+    // BATAS WAKTU LOGIN (Misal: 1 jam = 3600000 ms, 1 hari = 86400000 ms)
+    const MAX_AGE = 3600000; 
+
     function playMusic() {
       if (music) {
         music.play().then(() => {
@@ -783,9 +786,17 @@
         setupImageFallback(img);
       });
 
-      // CEK STATUS LOGIN SAAT HALAMAN DI-REFRESH
-      if (localStorage.getItem('isLogged') === 'true') {
-        unlockWeb(false); // Buka tanpa animasi kembang api ulang
+      // CEK EXPIRATION STATUS LOGIN
+      const isLogged = localStorage.getItem('isLogged');
+      const loginTime = localStorage.getItem('loginTime');
+      const now = new Date().getTime();
+
+      if (isLogged === 'true' && loginTime && (now - parseInt(loginTime) < MAX_AGE)) {
+        unlockWeb(false); // Masih dalam kurun waktu 1 jam: Masuk tanpa ketik passcode
+      } else {
+        // Sudah lewat dari 1 jam: Reset status login
+        localStorage.removeItem('isLogged');
+        localStorage.removeItem('loginTime');
       }
     });
 
@@ -826,7 +837,8 @@
       const errorMsg = document.getElementById('errorMsg');
       
       if (input === "11122001" || input.toLowerCase() === 'hbd' || input.toLowerCase() === 'citra') {
-        localStorage.setItem('isLogged', 'true'); // Simpan sesi login
+        localStorage.setItem('isLogged', 'true'); 
+        localStorage.setItem('loginTime', new Date().getTime().toString()); // Simpan jam login
         unlockWeb(true);
       } else {
         errorMsg.style.display = 'block';
