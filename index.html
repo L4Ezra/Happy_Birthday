@@ -32,6 +32,26 @@
       gap: 22px;
     }
 
+    /* MUSIC CONTROLLER FLOATING BUTTON */
+    .music-btn {
+      display: none;
+      position: fixed;
+      top: 15px;
+      right: 15px;
+      z-index: 1000;
+      background: rgba(255, 255, 255, 0.9);
+      border: 1px solid #e2b4bd;
+      border-radius: 50%;
+      width: 42px;
+      height: 42px;
+      font-size: 1.1rem;
+      cursor: pointer;
+      box-shadow: 0 4px 12px rgba(184, 107, 119, 0.2);
+      backdrop-filter: blur(8px);
+      align-items: center;
+      justify-content: center;
+    }
+
     /* GATE SCREEN */
     #gateScreen {
       min-height: 85vh;
@@ -503,6 +523,14 @@
 </head>
 <body>
 
+  <!-- ELEMENT AUDIO TERSEMBUNYI -->
+  <audio id="bgMusic" loop preload="auto">
+    <source src="lagu.mp3" type="audio/mpeg">
+  </audio>
+
+  <!-- TOMBOL FLOATING MUSIK -->
+  <button id="musicToggleBtn" class="music-btn" onclick="toggleMusic()">🎵</button>
+
   <div class="container">
     
     <!-- GATE SCREEN -->
@@ -726,11 +754,39 @@
   </div>
 
   <script>
-    // Skrip otomatis menangani Thumbnail dan semua gambar agar pasti muncul
+    const music = document.getElementById('bgMusic');
+    const musicBtn = document.getElementById('musicToggleBtn');
+
+    function playMusic() {
+      if (music) {
+        music.play().then(() => {
+          musicBtn.style.display = 'flex';
+          musicBtn.innerText = '🎵';
+        }).catch(() => {
+          console.log('Autoplay audio tercegah oleh browser.');
+        });
+      }
+    }
+
+    function toggleMusic() {
+      if (music.paused) {
+        music.play();
+        musicBtn.innerText = '🎵';
+      } else {
+        music.pause();
+        musicBtn.innerText = '🔇';
+      }
+    }
+
     window.addEventListener('DOMContentLoaded', () => {
       document.querySelectorAll('img').forEach(img => {
         setupImageFallback(img);
       });
+
+      // CEK STATUS LOGIN SAAT HALAMAN DI-REFRESH
+      if (localStorage.getItem('isLogged') === 'true') {
+        unlockWeb(false); // Buka tanpa animasi kembang api ulang
+      }
     });
 
     function setupImageFallback(img) {
@@ -770,19 +826,24 @@
       const errorMsg = document.getElementById('errorMsg');
       
       if (input === "11122001" || input.toLowerCase() === 'hbd' || input.toLowerCase() === 'citra') {
-        unlockWeb();
+        localStorage.setItem('isLogged', 'true'); // Simpan sesi login
+        unlockWeb(true);
       } else {
         errorMsg.style.display = 'block';
       }
     }
 
-    function unlockWeb() {
-      confetti({
-        particleCount: 100,
-        spread: 70,
-        origin: { y: 0.5 },
-        colors: ['#b86b77', '#e2b4bd', '#efe4dc', '#ffffff']
-      });
+    function unlockWeb(triggerConfetti = true) {
+      playMusic();
+      
+      if (triggerConfetti) {
+        confetti({
+          particleCount: 100,
+          spread: 70,
+          origin: { y: 0.5 },
+          colors: ['#b86b77', '#e2b4bd', '#efe4dc', '#ffffff']
+        });
+      }
       
       document.getElementById('gateScreen').style.display = 'none';
       document.getElementById('mainContent').style.display = 'flex';
